@@ -31,9 +31,9 @@ def get_text_chunks(text):
 
 
 def get_vectorstore(text_chunks):
-    # embeddings = OpenAIEmbeddings()
-    embeddings = HuggingFaceInstructEmbeddings(
-        model_name="hkunlp/instructor-xl")
+    embeddings = OpenAIEmbeddings()
+    # embeddings = HuggingFaceInstructEmbeddings(
+    # model_name="hkunlp/instructor-xl")
     vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     return vectorstore
 
@@ -50,6 +50,11 @@ def get_conversation_chain(vectorstore):
     return conversation_chain
 
 
+def handle_userinput(user_question):
+    response = st.session_state.conversation({'question': user_question})
+    st.write(response)
+
+
 def main():
     load_dotenv()
     st.set_page_config(page_title="Chat with Multiple PDFs",
@@ -60,7 +65,9 @@ def main():
         st.session_state.conversation = None
 
     st.header("Chat with multiple PDFs :books:")
-    st.text_input("Ask a question about your documents:")
+    user_question = st.text_input("Ask a question about your documents:")
+    if user_question:
+        handle_userinput(user_question)
 
     st.write(user_template.replace(
         "{{MSG}}", "Hello robot"), unsafe_allow_html=True)
@@ -85,7 +92,8 @@ def main():
                 vectorstore = get_vectorstore(text_chunks)
 
                 # create conversation chain
-                conversation = get_conversation_chain(vectorstore)
+                st.session_state.conversation = get_conversation_chain(
+                    vectorstore)
 
 
 if __name__ == '__main__':
