@@ -54,6 +54,9 @@ def main():
     st.set_page_config(page_title="Chat with Multiple PDFs",
                        page_icon=":books:")
 
+    if "conversation" not in st.session_state:
+        st.session_state.conversation = None
+
     st.header("Chat with multiple PDFs :books:")
     st.text_input("Ask a question about your documents:")
 
